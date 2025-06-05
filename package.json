@@ -1,0 +1,27 @@
+{
+  "name": "video-poker-2",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@vitejs/plugin-vue": "^5.2.4",
+    "autoprefixer": "^10.4.21",
+    "pinia": "^3.0.3",
+    "postcss": "^8.5.4",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5",
+    "vue": "^3.5.16"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.29",
+    "tailwindcss": "^3.4.17"
+  }
+}
