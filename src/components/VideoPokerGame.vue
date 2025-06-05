@@ -22,18 +22,18 @@
     <div class="cards-section">
       <div class="cards-container">
         <div 
-          v-for="(card, index) in gameStore.currentHand"
+          v-for="(card, index) in displayHand"
           :key="`${card?.suit}-${card?.rank}-${index}`"
           class="card-wrapper"
         >
-          <div v-if="gameStore.heldCards[index]" class="held-label">HELD</div>
+          <div v-if="(gameStore.heldCards[index] && !showOptimalCards) || (showOptimalCards && isPlayerHold(index))" class="held-label">HELD</div>
           <PlayingCard
             :card="card"
-            :is-held="gameStore.heldCards[index]"
+            :is-held="gameStore.heldCards[index] && !showOptimalCards"
             :show-hold-button="false"
             :is-optimal-hold="isOptimalHold(index)"
             :is-player-hold="isPlayerHold(index)"
-            @click="gameStore.toggleHold(index)"
+            @click="!showOptimalCards ? gameStore.toggleHold(index) : undefined"
           />
         </div>
       </div>
@@ -43,6 +43,18 @@
     <div class="controls-section">
       <!-- Credits display on its own row -->
       <div class="credits-row">
+        <!-- Training feedback on left -->
+        <div class="training-feedback-left">
+          <div v-if="gameStore.phase === 'result'">
+            <div v-if="gameStore.isOptimalPlay()" class="optimal-play">
+              Optimal cards held!
+            </div>
+            <button v-else @click="toggleOptimalDisplay" class="show-optimal-button">
+              {{ showOptimalCards ? 'Hide optimal cards' : 'Show optimal cards' }}
+            </button>
+          </div>
+        </div>
+        
         <div class="credits-display">
           <div class="credits-amount">{{ gameStore.credits }}</div>
         </div>
@@ -103,7 +115,7 @@
           
           <button
             v-else-if="gameStore.phase === 'result'"
-            @click="gameStore.newHand"
+            @click="handleNewHand"
             class="deal-button"
           >
             DEAL
@@ -111,12 +123,9 @@
         </div>
       </div>
 
-      <!-- Game info bar -->
-      <div class="info-bar">
-        <div class="game-name">JACKS OR BETTER</div>
-        <div v-if="gameStore.credits <= 0" class="game-over">
-          <button @click="gameStore.resetCredits" class="reset-button">GAME OVER - CLICK TO RESET</button>
-        </div>
+      <!-- Game over section (only when needed) -->
+      <div v-if="gameStore.credits <= 0" class="game-over-section">
+        <button @click="gameStore.resetCredits" class="reset-button">GAME OVER - CLICK TO RESET</button>
       </div>
     </div>
 
@@ -128,7 +137,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useGameStore } from '@/stores/gameStore'
 import PlayingCard from './PlayingCard.vue'
 import PayTable from './PayTable.vue'
@@ -136,6 +145,13 @@ import FeedbackPanel from './FeedbackPanel.vue'
 
 const gameStore = useGameStore()
 const showFeedback = ref(false)
+const showOptimalCards = ref(false)
+
+const displayHand = computed(() => {
+  return showOptimalCards.value && gameStore.initialHand.length > 0 
+    ? gameStore.initialHand 
+    : gameStore.currentHand
+})
 
 function handleDeal() {
   if (gameStore.bet === 5) {
@@ -151,8 +167,23 @@ function isOptimalHold(index: number): boolean {
 
 function isPlayerHold(index: number): boolean {
   return gameStore.showOptimalFeedback && 
-         gameStore.playerHold[index] === true &&
-         !isOptimalHold(index)
+         gameStore.playerHold[index] === true
+}
+
+function toggleOptimalDisplay() {
+  showOptimalCards.value = !showOptimalCards.value
+  if (showOptimalCards.value) {
+    gameStore.showOptimalStrategy()
+  } else {
+    gameStore.hideOptimalStrategy()
+  }
+}
+
+function handleNewHand() {
+  // Reset optimal cards display when starting new hand
+  showOptimalCards.value = false
+  gameStore.hideOptimalStrategy()
+  gameStore.newHand()
 }
 
 gameStore.initializeGame()
@@ -168,8 +199,8 @@ gameStore.initializeGame()
 }
 
 .hand-result-display {
-  @apply bg-blue-900 text-center py-6;
-  min-height: 5rem;
+  @apply bg-blue-900 text-center py-2;
+  min-height: 2.5rem;
 }
 
 .hand-result-content {
@@ -177,15 +208,15 @@ gameStore.initializeGame()
 }
 
 .hand-name {
-  @apply text-4xl font-bold text-yellow-300;
+  @apply text-2xl font-bold text-yellow-300;
 }
 
 .game-over-text {
-  @apply text-4xl font-bold text-red-400 animate-pulse;
+  @apply text-2xl font-bold text-red-400 animate-pulse;
 }
 
 .invisible-placeholder {
-  @apply text-4xl font-bold opacity-0;
+  @apply text-2xl font-bold opacity-0;
 }
 
 .cards-section {
@@ -193,7 +224,7 @@ gameStore.initializeGame()
 }
 
 .cards-container {
-  @apply flex justify-center gap-8;
+  @apply flex justify-center gap-8 px-4;
 }
 
 .card-wrapper {
@@ -209,7 +240,11 @@ gameStore.initializeGame()
 }
 
 .credits-row {
-  @apply flex justify-end mb-4;
+  @apply flex justify-between items-center mb-4;
+}
+
+.training-feedback-left {
+  @apply flex items-center;
 }
 
 .control-row {
@@ -274,6 +309,18 @@ gameStore.initializeGame()
 
 .game-name {
   @apply font-bold text-yellow-300 text-lg;
+}
+
+.optimal-play {
+  @apply text-green-400 font-semibold;
+}
+
+.show-optimal-button {
+  @apply bg-blue-600 hover:bg-blue-700 text-white font-bold py-1 px-3 text-xs rounded;
+}
+
+.game-over-section {
+  @apply text-center py-4;
 }
 
 .reset-button {

@@ -17,6 +17,7 @@ export const useGameStore = defineStore('game', () => {
   const playerHold = ref<boolean[]>([])
   const handResult = ref<HandResult | null>(null)
   const showOptimalFeedback = ref(false)
+  const initialHand = ref<Card[]>([])
 
   const canBet = computed(() => (phase.value === 'betting' || phase.value === 'result') && credits.value >= 1)
   const canDeal = computed(() => (phase.value === 'betting' || phase.value === 'result') && credits.value >= bet.value)
@@ -38,6 +39,7 @@ export const useGameStore = defineStore('game', () => {
     playerHold.value = []
     handResult.value = null
     showOptimalFeedback.value = false
+    initialHand.value = []
     deck.value = shuffleDeck(createDeck())
     showRandomCards()
   }
@@ -83,8 +85,10 @@ export const useGameStore = defineStore('game', () => {
     
     const { dealtCards, remainingDeck } = dealCards(deck.value, 5)
     currentHand.value = dealtCards
+    initialHand.value = [...dealtCards] // Store the initial hand for optimal display
     deck.value = remainingDeck
     
+    // Calculate optimal hold for the dealt hand - this is THE optimal hold for this round
     optimalHold.value = getOptimalHold(currentHand.value)
     phase.value = 'holding'
   }
@@ -117,10 +121,25 @@ export const useGameStore = defineStore('game', () => {
       .filter(index => index !== null) as number[]
     
     if (cardsToReplace.length > 0) {
-      const { dealtCards } = dealCards(deck.value, cardsToReplace.length)
+      // Ensure we have enough cards in the deck
+      if (deck.value.length < cardsToReplace.length) {
+        deck.value = shuffleDeck(createDeck())
+        // Remove cards already in hand from new deck
+        const cardsInHand = currentHand.value.filter(card => card)
+        deck.value = deck.value.filter(deckCard => 
+          !cardsInHand.some(handCard => 
+            handCard && deckCard.suit === handCard.suit && deckCard.rank === handCard.rank
+          )
+        )
+      }
+      
+      const { dealtCards, remainingDeck } = dealCards(deck.value, cardsToReplace.length)
+      deck.value = remainingDeck
       
       cardsToReplace.forEach((cardIndex, replaceIndex) => {
-        currentHand.value[cardIndex] = dealtCards[replaceIndex]
+        if (dealtCards[replaceIndex]) {
+          currentHand.value[cardIndex] = dealtCards[replaceIndex]
+        }
       })
     }
     
@@ -153,8 +172,10 @@ export const useGameStore = defineStore('game', () => {
         
         const { dealtCards, remainingDeck } = dealCards(deck.value, 5)
         currentHand.value = dealtCards
+        initialHand.value = [...dealtCards] // Store the initial hand for optimal display
         deck.value = remainingDeck
         
+        // Calculate optimal hold for the dealt hand - this is THE optimal hold for this round
         optimalHold.value = getOptimalHold(currentHand.value)
         phase.value = 'holding'
       } else {
@@ -167,9 +188,9 @@ export const useGameStore = defineStore('game', () => {
 
   function clearHandResult() {
     handResult.value = null
-    optimalHold.value = null
     playerHold.value = []
     showOptimalFeedback.value = false
+    // Don't clear optimalHold here - it should persist for showing optimal strategy
   }
 
   function showOptimalStrategy() {
@@ -197,13 +218,19 @@ export const useGameStore = defineStore('game', () => {
   function showRandomCards() {
     const shuffledDeck = shuffleDeck(createDeck())
     const { dealtCards } = dealCards(shuffledDeck, 5)
-    currentHand.value = dealtCards
+    // Ensure we always have exactly 5 cards
+    currentHand.value = [...dealtCards]
+    // Fill any missing slots with placeholder (shouldn't happen, but safety check)
+    while (currentHand.value.length < 5) {
+      currentHand.value.push(dealtCards[0]) // duplicate first card as fallback
+    }
   }
 
   return {
     credits,
     bet,
     currentHand,
+    initialHand,
     heldCards,
     phase,
     lastWinAmount,

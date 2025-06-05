@@ -76,9 +76,8 @@ const suitColorClass = computed(() => {
 const cardClasses = computed(() => [
   'cursor-pointer',
   {
-    'ring-4 ring-yellow-400 shadow-2xl': props.isHeld,
-    'ring-3 ring-green-400 shadow-green-400/50': props.isOptimalHold && !props.isPlayerHold,
-    'ring-3 ring-red-400 shadow-red-400/50': props.isPlayerHold && !props.isOptimalHold,
+    'ring-4 ring-yellow-400 shadow-2xl': props.isHeld && !props.isOptimalHold,
+    'ring-8 ring-green-700 shadow-2xl shadow-green-700/50': props.isOptimalHold,
   }
 ])
 </script>
