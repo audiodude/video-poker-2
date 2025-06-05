@@ -85,11 +85,11 @@ const cardClasses = computed(() => [
 
 <style scoped>
 .playing-card {
-  @apply relative w-24 h-32 bg-white rounded-xl border-2 border-gray-300 shadow-xl flex flex-col;
+  @apply relative w-36 h-48 bg-white rounded-xl border-2 border-gray-300 shadow-xl flex flex-col;
 }
 
 .card-content {
-  @apply h-full relative p-1;
+  @apply h-full relative p-2;
 }
 
 .card-corner {
@@ -97,19 +97,19 @@ const cardClasses = computed(() => [
 }
 
 .card-corner.top-left {
-  @apply top-1 left-1;
+  @apply top-2 left-2;
 }
 
 .card-corner.bottom-right {
-  @apply bottom-1 right-1;
+  @apply bottom-2 right-2;
 }
 
 .card-rank {
-  @apply text-sm font-bold leading-none;
+  @apply text-lg font-bold leading-none;
 }
 
 .card-suit-small {
-  @apply text-xs leading-none mt-0.5;
+  @apply text-sm leading-none mt-1;
 }
 
 .rotated {
@@ -121,11 +121,11 @@ const cardClasses = computed(() => [
 }
 
 .rank-large {
-  @apply text-3xl font-bold leading-none mb-1;
+  @apply text-5xl font-bold leading-none mb-2;
 }
 
 .suit-large {
-  @apply text-2xl leading-none;
+  @apply text-4xl leading-none;
 }
 
 .card-back {
@@ -144,7 +144,7 @@ const cardClasses = computed(() => [
 }
 
 .held-indicator {
-  @apply absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-black text-sm font-bold px-3 py-2 rounded-lg shadow-lg animate-pulse;
+  @apply absolute -top-12 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-black text-lg font-bold px-4 py-3 rounded-lg shadow-lg animate-pulse;
 }
 
 .hold-button {

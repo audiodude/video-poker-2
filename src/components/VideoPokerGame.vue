@@ -41,42 +41,48 @@
 
     <!-- Controls section -->
     <div class="controls-section">
+      <!-- Credits display on its own row -->
+      <div class="credits-row">
+        <div class="credits-display">
+          <div class="credits-amount">{{ gameStore.credits }}</div>
+        </div>
+      </div>
+
       <div class="control-row">
         <!-- Left side buttons -->
         <div class="left-controls">
-          <button class="menu-button">MENU</button>
-          <button class="options-button">OPTIONS</button>
           <button class="speed-button">SPEED</button>
         </div>
 
         <!-- Center bet display -->
         <div class="bet-display">
-          <div class="bet-circle">
-            <div class="bet-amount">{{ gameStore.bet }}</div>
-            <div class="bet-label">BET {{ gameStore.bet }}</div>
+          <div class="bet-controls">
+            <button
+              @click="gameStore.betOne"
+              :disabled="!gameStore.canBet"
+              class="bet-button bet-up"
+              :class="{ 'disabled': !gameStore.canBet }"
+            >
+              BET UP
+            </button>
+            
+            <div class="bet-circle">
+              <div class="bet-amount">{{ gameStore.bet }}</div>
+            </div>
+            
+            <button
+              @click="gameStore.betMax"
+              :disabled="!gameStore.canBet"
+              class="bet-button bet-max"
+              :class="{ 'disabled': !gameStore.canBet }"
+            >
+              BET MAX
+            </button>
           </div>
         </div>
 
         <!-- Right side buttons -->
         <div class="right-controls">
-          <button
-            @click="gameStore.betOne"
-            :disabled="!gameStore.canBet"
-            class="bet-button"
-            :class="{ 'disabled': !gameStore.canBet }"
-          >
-            BET UP
-          </button>
-          
-          <button
-            @click="gameStore.betMax"
-            :disabled="!gameStore.canBet"
-            class="bet-button"
-            :class="{ 'disabled': !gameStore.canBet }"
-          >
-            BET MAX
-          </button>
-          
           <button
             v-if="gameStore.phase === 'betting'"
             @click="handleDeal"
@@ -102,12 +108,6 @@
           >
             DEAL
           </button>
-        </div>
-
-        <!-- Credits display -->
-        <div class="credits-display">
-          <div class="credits-amount">{{ gameStore.credits }}</div>
-          <div class="credits-label">CREDITS</div>
         </div>
       </div>
 
@@ -160,16 +160,16 @@ gameStore.initializeGame()
 
 <style scoped>
 .video-poker-machine {
-  @apply max-w-4xl mx-auto bg-blue-900 text-white border-4 border-yellow-400 rounded-lg overflow-hidden;
+  @apply max-w-7xl mx-auto bg-blue-900 text-white rounded-lg overflow-hidden;
 }
 
 .paytable-section {
-  @apply p-4 bg-blue-800;
+  @apply p-6 bg-blue-800;
 }
 
 .hand-result-display {
-  @apply bg-blue-900 text-center py-3;
-  min-height: 3.5rem;
+  @apply bg-blue-900 text-center py-6;
+  min-height: 5rem;
 }
 
 .hand-result-content {
@@ -177,23 +177,23 @@ gameStore.initializeGame()
 }
 
 .hand-name {
-  @apply text-2xl font-bold text-yellow-300;
+  @apply text-4xl font-bold text-yellow-300;
 }
 
 .game-over-text {
-  @apply text-2xl font-bold text-red-400 animate-pulse;
+  @apply text-4xl font-bold text-red-400 animate-pulse;
 }
 
 .invisible-placeholder {
-  @apply text-2xl font-bold opacity-0;
+  @apply text-4xl font-bold opacity-0;
 }
 
 .cards-section {
-  @apply bg-blue-800 py-8;
+  @apply bg-blue-800 py-12;
 }
 
 .cards-container {
-  @apply flex justify-center gap-4;
+  @apply flex justify-center gap-8;
 }
 
 .card-wrapper {
@@ -201,55 +201,63 @@ gameStore.initializeGame()
 }
 
 .held-label {
-  @apply absolute -top-8 left-1/2 transform -translate-x-1/2 bg-yellow-400 text-black text-sm font-bold px-3 py-1 rounded z-10;
+  @apply absolute -top-12 left-1/2 transform -translate-x-1/2 bg-yellow-400 text-black text-lg font-bold px-4 py-2 rounded z-10;
 }
 
 .controls-section {
-  @apply bg-blue-900 p-4;
+  @apply bg-blue-900 p-8;
+}
+
+.credits-row {
+  @apply flex justify-end mb-4;
 }
 
 .control-row {
-  @apply flex items-center justify-between mb-4;
+  @apply flex items-center justify-between mb-6;
 }
 
 .left-controls {
-  @apply flex gap-2;
+  @apply flex flex-col items-center;
 }
 
-.menu-button, .options-button, .speed-button {
-  @apply bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 text-sm rounded;
+.speed-button {
+  @apply bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-6 text-base rounded;
 }
 
 .bet-display {
   @apply flex-1 flex justify-center;
 }
 
+.bet-controls {
+  @apply flex items-center gap-4;
+}
+
 .bet-circle {
-  @apply bg-yellow-500 text-black rounded-full w-20 h-20 flex flex-col items-center justify-center font-bold;
+  @apply bg-yellow-500 text-black rounded-full w-16 h-16 flex items-center justify-center font-bold;
 }
 
 .bet-amount {
   @apply text-2xl;
 }
 
-.bet-label {
-  @apply text-xs;
+.bet-button {
+  @apply bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-6 text-base rounded;
 }
 
 .right-controls {
-  @apply flex gap-2;
-}
-
-.bet-button {
-  @apply bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 text-sm rounded;
+  @apply flex items-center;
 }
 
 .deal-button {
-  @apply bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 text-lg rounded;
+  @apply bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-8 text-xl rounded;
 }
 
 .bet-button.disabled, .deal-button.disabled {
   @apply bg-gray-600 cursor-not-allowed opacity-50;
+}
+
+.deal-section {
+  @apply flex flex-col items-center gap-2;
 }
 
 .credits-display {
@@ -257,26 +265,22 @@ gameStore.initializeGame()
 }
 
 .credits-amount {
-  @apply text-2xl font-bold text-yellow-300;
-}
-
-.credits-label {
-  @apply text-sm text-gray-300;
+  @apply text-4xl font-bold text-yellow-300;
 }
 
 .info-bar {
-  @apply flex justify-between items-center text-sm;
+  @apply flex justify-between items-center text-base;
 }
 
 .game-name {
-  @apply font-bold text-yellow-300;
+  @apply font-bold text-yellow-300 text-lg;
 }
 
 .reset-button {
-  @apply bg-red-600 hover:bg-red-700 text-white font-bold py-1 px-3 text-xs rounded;
+  @apply bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 text-sm rounded;
 }
 
 .feedback-area {
-  @apply p-4 bg-blue-800;
+  @apply p-6 bg-blue-800;
 }
 </style>

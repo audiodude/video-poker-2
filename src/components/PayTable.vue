@@ -1,15 +1,15 @@
 <template>
   <div class="paytable">
     <div class="overflow-x-auto">
-      <table class="w-full text-xs">
+      <table class="w-full">
         <thead>
-          <tr class="border-b border-yellow-400">
-            <th class="text-left py-1 text-yellow-400 font-bold">HAND</th>
-            <th class="text-center px-1 py-1 text-yellow-400 font-bold">1</th>
-            <th class="text-center px-1 py-1 text-yellow-400 font-bold">2</th>
-            <th class="text-center px-1 py-1 text-yellow-400 font-bold">3</th>
-            <th class="text-center px-1 py-1 text-yellow-400 font-bold">4</th>
-            <th class="text-center px-1 py-1 text-yellow-400 font-bold">5</th>
+          <tr class="border-b-2 border-yellow-400">
+            <th class="text-left py-1 text-yellow-400 font-bold text-3xl">CREDITS</th>
+            <th class="text-center px-2 py-1 text-yellow-400 font-bold text-3xl" :class="getBetColumnHeaderClass(1)">1</th>
+            <th class="text-center px-2 py-1 text-yellow-400 font-bold text-3xl" :class="getBetColumnHeaderClass(2)">2</th>
+            <th class="text-center px-2 py-1 text-yellow-400 font-bold text-3xl" :class="getBetColumnHeaderClass(3)">3</th>
+            <th class="text-center px-2 py-1 text-yellow-400 font-bold text-3xl" :class="getBetColumnHeaderClass(4)">4</th>
+            <th class="text-center px-2 py-1 text-yellow-400 font-bold text-3xl" :class="getBetColumnHeaderClass(5)">5</th>
           </tr>
         </thead>
         <tbody>
@@ -19,12 +19,12 @@
             class="border-b border-gray-600"
             :class="getRowClass(hand.type)"
           >
-            <td class="py-0.5 font-medium text-xs">{{ hand.name }}</td>
-            <td class="text-center px-1 py-0.5 text-xs">{{ hand.payouts[0] }}</td>
-            <td class="text-center px-1 py-0.5 text-xs">{{ hand.payouts[1] }}</td>
-            <td class="text-center px-1 py-0.5 text-xs">{{ hand.payouts[2] }}</td>
-            <td class="text-center px-1 py-0.5 text-xs">{{ hand.payouts[3] }}</td>
-            <td class="text-center px-1 py-0.5 text-xs font-bold" :class="getBetColumnClass(hand.type, 4)">
+            <td class="py-1 font-medium text-2xl">{{ hand.name }}</td>
+            <td class="text-center px-2 py-1 text-2xl" :class="getBetColumnCellClass(1)">{{ hand.payouts[0] }}</td>
+            <td class="text-center px-2 py-1 text-2xl" :class="getBetColumnCellClass(2)">{{ hand.payouts[1] }}</td>
+            <td class="text-center px-2 py-1 text-2xl" :class="getBetColumnCellClass(3)">{{ hand.payouts[2] }}</td>
+            <td class="text-center px-2 py-1 text-2xl" :class="getBetColumnCellClass(4)">{{ hand.payouts[3] }}</td>
+            <td class="text-center px-2 py-1 text-2xl" :class="getBetColumnCellClass(5)">
               {{ hand.payouts[4] }}
             </td>
           </tr>
@@ -108,8 +108,26 @@ function getRowClass(handType: string) {
 function getBetColumnClass(handType: string, columnIndex: number) {
   const classes = []
   
-  if (handType === 'ROYAL_FLUSH' && columnIndex === 4) {
-    classes.push('text-red-400')
+  // Removed the red color for Royal Flush 4000 payout
+  
+  return classes.join(' ')
+}
+
+function getBetColumnHeaderClass(columnBet: number) {
+  const classes = []
+  
+  if (columnBet === props.currentBet) {
+    classes.push('bg-yellow-400', 'bg-opacity-30')
+  }
+  
+  return classes.join(' ')
+}
+
+function getBetColumnCellClass(columnBet: number) {
+  const classes = []
+  
+  if (columnBet === props.currentBet) {
+    classes.push('bg-yellow-400', 'bg-opacity-20')
   }
   
   return classes.join(' ')
@@ -122,11 +140,12 @@ function getBetColumnClass(handType: string, columnIndex: number) {
 }
 
 th {
-  @apply font-bold text-xs;
+  @apply font-bold;
+  font-size: 1.875rem !important; /* 30px */
 }
 
 td {
-  @apply text-xs;
+  font-size: 1.5rem !important; /* 24px */
 }
 
 .bet-highlight {
