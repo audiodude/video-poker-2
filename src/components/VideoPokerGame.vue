@@ -80,19 +80,25 @@
       <div class="credits-row">
         <!-- Training feedback on left -->
         <div class="training-feedback-left">
-          <div v-if="gameStore.phase === 'result'">
-            <div v-if="gameStore.isOptimalPlay()" class="optimal-play">
-              Optimal cards held!
+          <div class="feedback-area-fixed">
+            <div v-if="gameStore.phase === 'result'">
+              <div v-if="gameStore.isOptimalPlay()" class="optimal-play">
+                Optimal cards held! (streak: {{ gameStore.consecutiveOptimalPlays }})
+              </div>
+              <div v-else>
+                <button
+                  @click="toggleOptimalDisplay"
+                  class="show-optimal-button"
+                >
+                  {{
+                    showOptimalCards ? 'Hide optimal cards' : 'Show optimal cards'
+                  }}
+                </button>
+                <div class="new-record-message" :class="{ 'visible': gameStore.showNewRecordMessage }">
+                  New longest streak: {{ gameStore.maxOptimalStreak }}!
+                </div>
+              </div>
             </div>
-            <button
-              v-else
-              @click="toggleOptimalDisplay"
-              class="show-optimal-button"
-            >
-              {{
-                showOptimalCards ? 'Hide optimal cards' : 'Show optimal cards'
-              }}
-            </button>
           </div>
         </div>
 
@@ -385,7 +391,7 @@ gameStore.initializeGame();
 }
 
 .controls-section {
-  @apply bg-blue-900 p-8;
+  @apply bg-blue-900 pt-8 px-8 pb-4;
 }
 
 .credits-row {
@@ -394,6 +400,11 @@ gameStore.initializeGame();
 
 .training-feedback-left {
   @apply flex items-center;
+}
+
+.feedback-area-fixed {
+  height: 3rem;
+  @apply flex items-start justify-start;
 }
 
 .control-row {
@@ -493,6 +504,15 @@ gameStore.initializeGame();
 
 .show-optimal-button {
   @apply bg-blue-600 hover:bg-blue-700 text-white font-bold py-1 px-3 text-xs rounded;
+}
+
+.new-record-message {
+  @apply text-yellow-400 font-bold text-sm mt-1;
+  visibility: hidden;
+}
+
+.new-record-message.visible {
+  visibility: visible;
 }
 
 .game-over-section {
@@ -721,6 +741,10 @@ gameStore.initializeGame();
 
   .show-optimal-button {
     @apply py-0.5 px-1 text-xs;
+  }
+
+  .feedback-area-fixed {
+    height: 2rem;
   }
 
   /* Compact game over section */

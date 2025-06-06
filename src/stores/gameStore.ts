@@ -19,6 +19,9 @@ export const useGameStore = defineStore('game', () => {
   const showOptimalFeedback = ref(false)
   const initialHand = ref<Card[]>([])
   const animationSpeed = ref<'slow' | 'normal' | 'fast' | 'none'>('normal')
+  const consecutiveOptimalPlays = ref(0)
+  const maxOptimalStreak = ref(0)
+  const showNewRecordMessage = ref(false)
 
   const canBet = computed(() => (phase.value === 'betting' || phase.value === 'result') && credits.value >= 1)
   const canDeal = computed(() => (phase.value === 'betting' || phase.value === 'result') && credits.value >= bet.value)
@@ -32,6 +35,7 @@ export const useGameStore = defineStore('game', () => {
     resetHand()
     showPlaceholderCards()
     loadAnimationSpeed()
+    loadMaxOptimalStreak()
   }
 
   function resetHand() {
@@ -100,6 +104,35 @@ export const useGameStore = defineStore('game', () => {
     if (saved && ['slow', 'normal', 'fast', 'none'].includes(saved)) {
       animationSpeed.value = saved as 'slow' | 'normal' | 'fast' | 'none'
     }
+  }
+
+  function loadMaxOptimalStreak() {
+    const saved = localStorage.getItem('max-optimal-streak')
+    if (saved) {
+      const parsed = parseInt(saved, 10)
+      if (!isNaN(parsed) && parsed >= 0) {
+        maxOptimalStreak.value = parsed
+      }
+    }
+  }
+
+  function saveMaxOptimalStreak() {
+    localStorage.setItem('max-optimal-streak', maxOptimalStreak.value.toString())
+  }
+
+  function updateOptimalStreak() {
+    consecutiveOptimalPlays.value++
+    if (consecutiveOptimalPlays.value > maxOptimalStreak.value) {
+      maxOptimalStreak.value = consecutiveOptimalPlays.value
+      saveMaxOptimalStreak()
+    }
+  }
+
+  function resetOptimalStreak() {
+    // Check if the streak that just ended was a new record
+    const wasNewRecord = consecutiveOptimalPlays.value === maxOptimalStreak.value && consecutiveOptimalPlays.value > 0
+    consecutiveOptimalPlays.value = 0
+    showNewRecordMessage.value = wasNewRecord
   }
 
   function deal() {
@@ -205,6 +238,13 @@ export const useGameStore = defineStore('game', () => {
       drawCardsAnimated(cardsToReplace, dealtCards)
     } else {
       // No cards to replace, go directly to result
+      // Check if this was an optimal play and update counter
+      if (isOptimalPlay()) {
+        updateOptimalStreak()
+      } else {
+        resetOptimalStreak() // Reset counter on non-optimal play
+      }
+      
       handResult.value = evaluateHand(currentHand.value, bet.value)
       
       if (handResult.value.payout > 0) {
@@ -225,6 +265,13 @@ export const useGameStore = defineStore('game', () => {
       }
       const cardIndex = cardsToReplace[i]
       currentHand.value[cardIndex] = dealtCards[i]
+    }
+    
+    // Check if this was an optimal play and update counter
+    if (isOptimalPlay()) {
+      updateOptimalStreak()
+    } else {
+      resetOptimalStreak() // Reset counter on non-optimal play
     }
     
     // Evaluate hand and finish draw
@@ -284,6 +331,7 @@ export const useGameStore = defineStore('game', () => {
     handResult.value = null
     playerHold.value = []
     showOptimalFeedback.value = false
+    showNewRecordMessage.value = false
     // Don't clear optimalHold here - it should persist for showing optimal strategy
   }
 
@@ -305,6 +353,7 @@ export const useGameStore = defineStore('game', () => {
 
   function resetCredits() {
     credits.value = 100
+    consecutiveOptimalPlays.value = 0
     phase.value = 'betting'
     resetHand()
   }
@@ -365,6 +414,9 @@ export const useGameStore = defineStore('game', () => {
     showPlaceholderCards,
     animationSpeed,
     setAnimationSpeed,
-    loadAnimationSpeed
+    loadAnimationSpeed,
+    consecutiveOptimalPlays,
+    maxOptimalStreak,
+    showNewRecordMessage
   }
 })
