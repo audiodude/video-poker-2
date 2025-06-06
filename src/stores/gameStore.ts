@@ -30,7 +30,7 @@ export const useGameStore = defineStore('game', () => {
     bet.value = 1
     phase.value = 'betting'
     resetHand()
-    showRandomCards()
+    showPlaceholderCards()
     loadAnimationSpeed()
   }
 
@@ -43,7 +43,7 @@ export const useGameStore = defineStore('game', () => {
     showOptimalFeedback.value = false
     initialHand.value = []
     deck.value = shuffleDeck(createDeck())
-    showRandomCards()
+    showPlaceholderCards()
   }
 
   function setBet(amount: number) {
@@ -309,6 +309,16 @@ export const useGameStore = defineStore('game', () => {
     resetHand()
   }
 
+  function showPlaceholderCards() {
+    currentHand.value = [
+      createPlaceholderCard(),
+      createPlaceholderCard(),
+      createPlaceholderCard(),
+      createPlaceholderCard(),
+      createPlaceholderCard()
+    ]
+  }
+
   function showRandomCards() {
     const shuffledDeck = shuffleDeck(createDeck())
     const { dealtCards } = dealCards(shuffledDeck, 5)
@@ -352,6 +362,7 @@ export const useGameStore = defineStore('game', () => {
     isOptimalPlay,
     resetCredits,
     showRandomCards,
+    showPlaceholderCards,
     animationSpeed,
     setAnimationSpeed,
     loadAnimationSpeed
