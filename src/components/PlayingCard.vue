@@ -1,36 +1,23 @@
 <template>
-  <div 
-    class="playing-card"
-    :class="cardClasses"
-    @click="$emit('click')"
-  >
-    <div v-if="card" class="card-content">
-      <div class="card-corner top-left">
-        <div class="card-rank" :class="suitColorClass">{{ card.rank }}</div>
-        <div class="card-suit-small" :class="suitColorClass">{{ suitSymbol }}</div>
-      </div>
-      <div class="card-center">
-        <div class="rank-large" :class="suitColorClass">{{ card.rank }}</div>
-        <div class="suit-large" :class="suitColorClass">{{ suitSymbol }}</div>
-      </div>
-      <div class="card-corner bottom-right">
-        <div class="card-rank rotated" :class="suitColorClass">{{ card.rank }}</div>
-        <div class="card-suit-small rotated" :class="suitColorClass">{{ suitSymbol }}</div>
-      </div>
-    </div>
+  <div class="playing-card" :class="cardClasses" @click="$emit('click')">
+    <div
+      v-if="card"
+      :class="[
+        'card-content',
+        `c-${card.rank == '10' ? 'T' : card.rank}${card.suit[0]}`,
+      ]"
+    ></div>
     <div v-else class="card-back">
       <div class="back-pattern"></div>
     </div>
-    
-    <div v-if="isHeld" class="held-indicator">
-      HELD
-    </div>
-    
-    <button 
+
+    <div v-if="isHeld" class="held-indicator">HELD</div>
+
+    <button
       v-if="showHoldButton && card"
       @click.stop="$emit('toggle-hold')"
       class="hold-button"
-      :class="{ 'held': isHeld }"
+      :class="{ held: isHeld }"
     >
       {{ isHeld ? 'RELEASE' : 'HOLD' }}
     </button>
@@ -38,57 +25,62 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { Card, Suit } from '@/types/card'
-import { getSuitSymbol } from '@/utils/deck'
+import { computed } from 'vue';
+import { Card, Suit } from '@/types/card';
+import { getSuitSymbol } from '@/utils/deck';
 
 interface Props {
-  card?: Card
-  isHeld?: boolean
-  showHoldButton?: boolean
-  isOptimalHold?: boolean
-  isPlayerHold?: boolean
+  card?: Card;
+  isHeld?: boolean;
+  showHoldButton?: boolean;
+  isOptimalHold?: boolean;
+  isPlayerHold?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   isHeld: false,
   showHoldButton: false,
   isOptimalHold: false,
-  isPlayerHold: false
-})
+  isPlayerHold: false,
+});
 
 defineEmits<{
-  click: []
-  'toggle-hold': []
-}>()
+  click: [];
+  'toggle-hold': [];
+}>();
 
 const suitSymbol = computed(() => {
-  return props.card ? getSuitSymbol(props.card.suit) : ''
-})
+  return props.card ? getSuitSymbol(props.card.suit) : '';
+});
 
 const suitColorClass = computed(() => {
-  if (!props.card) return ''
-  return props.card.suit === Suit.HEARTS || props.card.suit === Suit.DIAMONDS 
-    ? 'text-red-500' 
-    : 'text-black'
-})
+  if (!props.card) return '';
+  return props.card.suit === Suit.HEARTS || props.card.suit === Suit.DIAMONDS
+    ? 'text-red-500'
+    : 'text-black';
+});
 
 const cardClasses = computed(() => [
   'cursor-pointer',
   {
     'ring-4 ring-yellow-400 shadow-2xl': props.isHeld && !props.isOptimalHold,
     'ring-8 ring-green-700 shadow-2xl shadow-green-700/50': props.isOptimalHold,
-  }
-])
+  },
+]);
 </script>
 
-<style scoped>
+<style lang="scss">
+@use '../styles/cards';
+
 .playing-card {
-  @apply relative w-36 h-48 bg-white rounded-xl border-2 border-gray-300 shadow-xl flex flex-col;
+  @apply relative w-36 h-[13.1rem] bg-white rounded-xl border-2 border-gray-300 shadow-xl overflow-hidden flex flex-col;
 }
 
 .card-content {
-  @apply h-full relative p-2;
+  @apply h-full relative;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
 }
 
 .card-corner {

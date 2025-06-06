@@ -1,0 +1,18 @@
+@use "sass:list";
+
+$ranks: (2 3 4 5 6 7 8 9 T J Q K A);
+$suits: (c d h s);
+
+@for $rank-idx from 1 through list.length($ranks) {
+  @for $suit-idx from 1 through list.length($suits) {
+    $rank: list.nth($ranks, $rank-idx);
+    $suit: list.nth($suits, $suit-idx);
+    .c-#{$rank}#{$suit} {
+      background-image: url('@/assets/cards/#{$rank}#{$suit}.png');
+    }
+  }
+}
+
+.c-xx {
+  background-image: url('@/assets/cards/back.jpg');
+}
