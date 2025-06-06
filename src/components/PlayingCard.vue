@@ -145,4 +145,87 @@ const cardClasses = computed(() => [
 .hold-button.held {
   @apply bg-gradient-to-r from-yellow-600 to-yellow-700 hover:from-yellow-700 hover:to-yellow-800;
 }
+
+/* Mobile responsive styles for cards */
+@media screen and (max-width: 1000px) {
+  .playing-card {
+    width: clamp(60px, 18vw, 80px);
+    height: clamp(87px, 26vw, 116px);
+  }
+
+  .rank-large {
+    @apply text-2xl mb-1;
+  }
+
+  .suit-large {
+    @apply text-xl;
+  }
+
+  .card-rank-small, .card-suit-small {
+    @apply text-xs;
+  }
+
+  .held-indicator {
+    @apply -top-8 text-sm px-2 py-1;
+  }
+
+  .hold-button {
+    @apply -bottom-8 text-xs px-2 py-1;
+  }
+}
+
+/* Mobile landscape - larger cards to fill screen */
+@media screen and (max-width: 1000px) and (orientation: landscape) {
+  .playing-card {
+    width: clamp(80px, 16vw, 120px);
+    height: clamp(116px, 23vw, 174px);
+  }
+
+  .rank-large {
+    @apply text-3xl mb-1;
+  }
+
+  .suit-large {
+    @apply text-2xl;
+  }
+
+  .card-rank-small, .card-suit-small {
+    @apply text-sm;
+  }
+
+  .held-indicator {
+    @apply -top-8 text-sm px-2 py-1;
+  }
+
+  .hold-button {
+    @apply -bottom-8 text-sm px-2 py-1;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .playing-card {
+    width: clamp(50px, 19vw, 65px);
+    height: clamp(73px, 27vw, 94px);
+  }
+
+  .rank-large {
+    @apply text-xl mb-0;
+  }
+
+  .suit-large {
+    @apply text-lg;
+  }
+
+  .card-rank-small, .card-suit-small {
+    @apply text-xs;
+  }
+
+  .held-indicator {
+    @apply -top-6 text-xs px-1 py-1;
+  }
+
+  .hold-button {
+    @apply -bottom-6 text-xs px-1 py-1;
+  }
+}
 </style>

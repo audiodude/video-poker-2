@@ -194,4 +194,53 @@ td {
 .bet-highlight {
   @apply bg-yellow-400 text-black font-bold;
 }
+
+/* Mobile responsive styles for paytable */
+@media screen and (max-width: 1000px) {
+  .collapse-button {
+    @apply py-1 px-2 text-sm gap-1;
+  }
+
+  .collapse-text {
+    @apply text-sm;
+  }
+
+  .collapse-icon {
+    @apply text-sm;
+  }
+
+  th {
+    font-size: 1rem !important;
+    @apply px-1 py-0.5;
+  }
+
+  td {
+    font-size: 0.875rem !important;
+    @apply px-1 py-0.5;
+  }
+
+  .paytable-header {
+    @apply p-1;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  th {
+    font-size: 0.875rem !important;
+    @apply px-0.5 py-0.5;
+  }
+
+  td {
+    font-size: 0.75rem !important;
+    @apply px-0.5 py-0.5;
+  }
+
+  .collapse-text {
+    @apply text-xs;
+  }
+
+  .collapse-icon {
+    @apply text-xs;
+  }
+}
 </style>

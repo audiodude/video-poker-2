@@ -1,5 +1,17 @@
 <template>
-  <div class="video-poker-machine">
+  <!-- Orientation message for mobile portrait mode -->
+  <div v-if="showOrientationMessage" class="orientation-message">
+    <div class="orientation-content">
+      <div class="rotate-icon">📱↻</div>
+      <h2>Better Experience in Landscape</h2>
+      <p>Please rotate your device horizontally for the best video poker experience</p>
+      <button @click="dismissOrientationMessage" class="dismiss-button">
+        Continue Anyway
+      </button>
+    </div>
+  </div>
+
+  <div class="video-poker-machine" :class="{ 'hidden': showOrientationMessage }">
     <!-- Paytable at top -->
     <div class="paytable-section">
       <PayTable
@@ -168,7 +180,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useGameStore } from '@/stores/gameStore';
 import PlayingCard from './PlayingCard.vue';
 import PayTable from './PayTable.vue';
@@ -177,6 +189,30 @@ import FeedbackPanel from './FeedbackPanel.vue';
 const gameStore = useGameStore();
 const showFeedback = ref(false);
 const showOptimalCards = ref(false);
+const showOrientationMessage = ref(false);
+
+function checkOrientation() {
+  const isMobile = window.innerWidth <= 1000;
+  const isPortrait = window.innerHeight > window.innerWidth;
+  showOrientationMessage.value = isMobile && isPortrait;
+}
+
+function dismissOrientationMessage() {
+  showOrientationMessage.value = false;
+}
+
+onMounted(() => {
+  checkOrientation();
+  window.addEventListener('resize', checkOrientation);
+  window.addEventListener('orientationchange', () => {
+    setTimeout(checkOrientation, 100);
+  });
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkOrientation);
+  window.removeEventListener('orientationchange', checkOrientation);
+});
 
 const displayHand = computed(() => {
   return showOptimalCards.value && gameStore.initialHand.length > 0
@@ -362,5 +398,236 @@ gameStore.initializeGame();
 
 .feedback-area {
   @apply p-6 bg-blue-800;
+}
+
+.orientation-message {
+  @apply fixed inset-0 bg-blue-900 flex items-center justify-center z-50;
+}
+
+.orientation-content {
+  @apply text-center text-white p-8 max-w-sm;
+}
+
+.rotate-icon {
+  @apply text-6xl mb-4;
+}
+
+.orientation-content h2 {
+  @apply text-2xl font-bold mb-4 text-yellow-400;
+}
+
+.orientation-content p {
+  @apply text-lg mb-6 text-gray-200;
+}
+
+.dismiss-button {
+  @apply bg-yellow-400 text-black font-bold py-2 px-4 rounded hover:bg-yellow-500 transition-colors duration-200;
+}
+
+.hidden {
+  @apply invisible;
+}
+
+/* Mobile responsive styles */
+@media screen and (max-width: 1000px) {
+  .video-poker-machine {
+    @apply max-w-full mx-0 rounded-none;
+    min-height: 100vh;
+    padding: 0.25rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .paytable-section {
+    @apply p-0;
+    flex-shrink: 0;
+  }
+
+  .hand-result-display {
+    @apply py-0;
+    flex-shrink: 0;
+  }
+
+  .hand-name, .game-over-text {
+    @apply text-base;
+  }
+
+  .cards-section {
+    @apply py-1;
+    flex-shrink: 0;
+  }
+
+  .cards-container {
+    @apply gap-1 px-1;
+  }
+
+  .controls-section {
+    @apply p-1 gap-1;
+    flex-shrink: 0;
+  }
+
+  .credits-row, .control-row {
+    @apply gap-1;
+  }
+
+  .bet-controls {
+    @apply gap-1;
+  }
+
+  .deal-button, .reset-button {
+    @apply py-1 px-2 text-xs;
+  }
+
+  .show-optimal-button {
+    @apply py-0.5 px-1 text-xs;
+  }
+
+  .feedback-area {
+    @apply p-2;
+  }
+}
+
+/* Landscape mobile - fill screen */
+@media screen and (max-width: 1000px) and (orientation: landscape) {
+  .video-poker-machine {
+    padding: 0.5rem;
+    max-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
+    max-width: 100vw;
+    width: 100vw;
+  }
+
+  .paytable-section {
+    @apply hidden;
+  }
+
+  .hand-result-display {
+    @apply py-1;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hand-name, .game-over-text {
+    @apply text-base leading-tight;
+  }
+
+  .cards-section {
+    @apply py-2;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cards-container {
+    @apply gap-3 px-2;
+  }
+
+  /* Smaller held banner */
+  .held-label {
+    @apply -top-6 text-xs px-2 py-1;
+  }
+
+  .controls-section {
+    @apply p-0.5 gap-0.5;
+    max-height: 20vh;
+  }
+
+  .credits-row, .control-row {
+    @apply gap-0.5 mb-1;
+  }
+
+  /* Larger buttons - 20% bigger */
+  .deal-button {
+    @apply py-2 px-3 text-base;
+  }
+
+  .bet-button {
+    @apply py-2 px-3 text-sm;
+  }
+
+  .speed-button {
+    @apply py-2 px-3 text-sm;
+  }
+
+  .reset-button {
+    @apply py-1 px-2 text-sm;
+  }
+
+  /* Smaller bet circle and credits */
+  .bet-circle {
+    @apply w-10 h-10;
+  }
+
+  .bet-amount {
+    @apply text-sm;
+  }
+
+  .credits-amount {
+    @apply text-xl;
+  }
+
+  /* More spacing in bet controls */
+  .bet-controls {
+    @apply gap-8;
+  }
+
+  /* Add spacing between credits and bet controls */
+  .control-row {
+    @apply justify-between;
+  }
+
+  .bet-display {
+    @apply px-8;
+  }
+
+  .feedback-area {
+    @apply p-1;
+  }
+
+  /* Smaller optimal play elements */
+  .optimal-play {
+    @apply text-xs;
+  }
+
+  .show-optimal-button {
+    @apply py-0.5 px-1 text-xs;
+  }
+
+  /* Compact game over section */
+  .game-over-section {
+    @apply py-1;
+  }
+
+  /* Reduce spacing in credits and control rows */
+  .credits-row {
+    @apply mb-0.5;
+  }
+
+  .control-row {
+    @apply mb-1;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .video-poker-machine {
+    padding: 0.25rem;
+  }
+
+  .cards-container {
+    @apply gap-0.5;
+  }
+
+  .controls-section {
+    @apply p-1 gap-1;
+  }
+
+  .deal-button, .reset-button {
+    @apply py-1 px-1 text-xs;
+  }
 }
 </style>
