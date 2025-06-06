@@ -1,6 +1,16 @@
 <template>
   <div class="paytable">
-    <div class="overflow-x-auto">
+    <div class="paytable-header">
+      <button 
+        @click="toggleCollapsed"
+        class="collapse-button"
+        :title="isCollapsed ? 'Show paytable' : 'Hide paytable'"
+      >
+        <span class="collapse-icon">{{ isCollapsed ? '▼' : '▲' }}</span>
+        <span class="collapse-text">{{ isCollapsed ? 'SHOW PAYTABLE' : 'HIDE PAYTABLE' }}</span>
+      </button>
+    </div>
+    <div v-if="!isCollapsed" class="overflow-x-auto">
       <table class="w-full">
         <thead>
           <tr class="border-b-2 border-yellow-400">
@@ -35,8 +45,25 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch, onMounted } from 'vue'
 import { HandType } from '@/types/card'
+
+const isCollapsed = ref(true)
+
+function toggleCollapsed() {
+  isCollapsed.value = !isCollapsed.value
+}
+
+onMounted(() => {
+  const saved = localStorage.getItem('paytable-collapsed')
+  if (saved !== null) {
+    isCollapsed.value = JSON.parse(saved)
+  }
+})
+
+watch(isCollapsed, (newValue) => {
+  localStorage.setItem('paytable-collapsed', JSON.stringify(newValue))
+})
 
 interface Props {
   currentBet?: number
@@ -137,6 +164,22 @@ function getBetColumnCellClass(columnBet: number) {
 <style scoped>
 .paytable {
   @apply bg-blue-800 border border-yellow-400 rounded;
+}
+
+.paytable-header {
+  @apply p-2 border-b border-yellow-400;
+}
+
+.collapse-button {
+  @apply w-full bg-transparent text-yellow-400 font-bold text-lg py-2 px-4 rounded hover:bg-yellow-400 hover:bg-opacity-20 transition-colors duration-200 flex items-center justify-center gap-2;
+}
+
+.collapse-icon {
+  @apply text-xl font-bold;
+}
+
+.collapse-text {
+  @apply text-lg font-bold;
 }
 
 th {
