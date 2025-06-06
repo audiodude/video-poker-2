@@ -104,7 +104,22 @@
       <div class="control-row">
         <!-- Left side buttons -->
         <div class="left-controls">
-          <button class="speed-button">SPEED</button>
+          <div class="speed-dropdown-container">
+            <button @click="toggleSpeedDropdown" class="speed-button">
+              SPEED
+            </button>
+            <div v-if="showSpeedDropdown" class="speed-dropdown">
+              <div 
+                v-for="speed in speedOptions" 
+                :key="speed.value"
+                @click="selectSpeed(speed.value)"
+                class="speed-option"
+                :class="{ active: gameStore.animationSpeed === speed.value }"
+              >
+                {{ speed.label }}
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Center bet display -->
@@ -210,6 +225,14 @@ const gameStore = useGameStore();
 const showFeedback = ref(false);
 const showOptimalCards = ref(false);
 const showOrientationMessage = ref(false);
+const showSpeedDropdown = ref(false);
+
+const speedOptions = [
+  { value: 'slow' as const, label: 'Slow' },
+  { value: 'normal' as const, label: 'Normal' },
+  { value: 'fast' as const, label: 'Fast' },
+  { value: 'none' as const, label: 'No Animations' }
+];
 
 function checkOrientation() {
   const isMobile = window.innerWidth <= 1000;
@@ -226,6 +249,13 @@ onMounted(() => {
   window.addEventListener('resize', checkOrientation);
   window.addEventListener('orientationchange', () => {
     setTimeout(checkOrientation, 100);
+  });
+  
+  document.addEventListener('click', (event) => {
+    const speedContainer = document.querySelector('.speed-dropdown-container');
+    if (speedContainer && !speedContainer.contains(event.target as Node)) {
+      showSpeedDropdown.value = false;
+    }
   });
 });
 
@@ -279,6 +309,15 @@ function handleNewHand() {
   showOptimalCards.value = false;
   gameStore.hideOptimalStrategy();
   gameStore.newHand();
+}
+
+function toggleSpeedDropdown() {
+  showSpeedDropdown.value = !showSpeedDropdown.value;
+}
+
+function selectSpeed(speed: 'slow' | 'normal' | 'fast' | 'none') {
+  gameStore.setAnimationSpeed(speed);
+  showSpeedDropdown.value = false;
 }
 
 gameStore.initializeGame();
@@ -350,8 +389,24 @@ gameStore.initializeGame();
   @apply flex flex-col items-center;
 }
 
+.speed-dropdown-container {
+  @apply relative;
+}
+
 .speed-button {
   @apply bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-6 text-base rounded;
+}
+
+.speed-dropdown {
+  @apply absolute bottom-full left-0 mb-2 bg-gray-800 border border-gray-600 rounded shadow-lg z-50 min-w-max;
+}
+
+.speed-option {
+  @apply px-4 py-2 hover:bg-gray-700 cursor-pointer text-white whitespace-nowrap;
+}
+
+.speed-option.active {
+  @apply bg-yellow-600 text-black;
 }
 
 .bet-display {
@@ -579,6 +634,14 @@ gameStore.initializeGame();
 
   .speed-button {
     @apply py-2 px-3 text-sm;
+  }
+
+  .speed-dropdown {
+    @apply text-sm;
+  }
+
+  .speed-option {
+    @apply px-2 py-1;
   }
 
   .reset-button {

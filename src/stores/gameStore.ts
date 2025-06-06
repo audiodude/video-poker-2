@@ -18,6 +18,7 @@ export const useGameStore = defineStore('game', () => {
   const handResult = ref<HandResult | null>(null)
   const showOptimalFeedback = ref(false)
   const initialHand = ref<Card[]>([])
+  const animationSpeed = ref<'slow' | 'normal' | 'fast' | 'none'>('normal')
 
   const canBet = computed(() => (phase.value === 'betting' || phase.value === 'result') && credits.value >= 1)
   const canDeal = computed(() => (phase.value === 'betting' || phase.value === 'result') && credits.value >= bet.value)
@@ -30,6 +31,7 @@ export const useGameStore = defineStore('game', () => {
     phase.value = 'betting'
     resetHand()
     showRandomCards()
+    loadAnimationSpeed()
   }
 
   function resetHand() {
@@ -78,6 +80,28 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
+  function getAnimationDelay(): number {
+    switch (animationSpeed.value) {
+      case 'slow': return 400
+      case 'normal': return 200
+      case 'fast': return 100
+      case 'none': return 0
+      default: return 200
+    }
+  }
+
+  function setAnimationSpeed(speed: 'slow' | 'normal' | 'fast' | 'none') {
+    animationSpeed.value = speed
+    localStorage.setItem('animation-speed', speed)
+  }
+
+  function loadAnimationSpeed() {
+    const saved = localStorage.getItem('animation-speed')
+    if (saved && ['slow', 'normal', 'fast', 'none'].includes(saved)) {
+      animationSpeed.value = saved as 'slow' | 'normal' | 'fast' | 'none'
+    }
+  }
+
   function deal() {
     if (!canDeal.value) return
 
@@ -112,8 +136,12 @@ export const useGameStore = defineStore('game', () => {
   }
 
   async function dealCardsAnimated(dealtCards: Card[]) {
+    const delay = getAnimationDelay()
+    
     for (let i = 0; i < 5; i++) {
-      await new Promise(resolve => setTimeout(resolve, 200)) // 200ms delay between cards
+      if (delay > 0) {
+        await new Promise(resolve => setTimeout(resolve, delay))
+      }
       currentHand.value[i] = dealtCards[i]
     }
     
@@ -189,8 +217,12 @@ export const useGameStore = defineStore('game', () => {
   }
 
   async function drawCardsAnimated(cardsToReplace: number[], dealtCards: Card[]) {
+    const delay = getAnimationDelay()
+    
     for (let i = 0; i < cardsToReplace.length; i++) {
-      await new Promise(resolve => setTimeout(resolve, 200)) // 200ms delay between cards
+      if (delay > 0) {
+        await new Promise(resolve => setTimeout(resolve, delay))
+      }
       const cardIndex = cardsToReplace[i]
       currentHand.value[cardIndex] = dealtCards[i]
     }
@@ -319,6 +351,9 @@ export const useGameStore = defineStore('game', () => {
     hideOptimalStrategy,
     isOptimalPlay,
     resetCredits,
-    showRandomCards
+    showRandomCards,
+    animationSpeed,
+    setAnimationSpeed,
+    loadAnimationSpeed
   }
 })
