@@ -10,7 +10,7 @@ export const useGameStore = defineStore('game', () => {
   const bet = ref(1)
   const currentHand = ref<Card[]>([])
   const heldCards = ref<boolean[]>([false, false, false, false, false])
-  const phase = ref<'betting' | 'holding' | 'drawn' | 'result'>('betting')
+  const phase = ref<'betting' | 'dealing' | 'holding' | 'drawing' | 'drawn' | 'result'>('betting')
   const lastWinAmount = ref(0)
   const deck = ref<Card[]>([])
   const optimalHold = ref<StrategyResult | null>(null)
@@ -69,6 +69,15 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
+  function createPlaceholderCard(): Card {
+    return {
+      suit: 'x' as any,
+      rank: 'x' as any,
+      value: 0,
+      shortName: 'xx'
+    }
+  }
+
   function deal() {
     if (!canDeal.value) return
 
@@ -84,12 +93,32 @@ export const useGameStore = defineStore('game', () => {
     }
     
     const { dealtCards, remainingDeck } = dealCards(deck.value, 5)
-    currentHand.value = dealtCards
-    initialHand.value = [...dealtCards] // Store the initial hand for optimal display
     deck.value = remainingDeck
     
-    // Calculate optimal hold for the dealt hand - this is THE optimal hold for this round
-    optimalHold.value = getOptimalHold(currentHand.value)
+    // Start dealing animation
+    phase.value = 'dealing'
+    // Set all cards to placeholder cards (card backs)
+    currentHand.value = [
+      createPlaceholderCard(),
+      createPlaceholderCard(),
+      createPlaceholderCard(),
+      createPlaceholderCard(),
+      createPlaceholderCard()
+    ]
+    initialHand.value = [...dealtCards]
+    
+    // Deal cards one by one with animation
+    dealCardsAnimated(dealtCards)
+  }
+
+  async function dealCardsAnimated(dealtCards: Card[]) {
+    for (let i = 0; i < 5; i++) {
+      await new Promise(resolve => setTimeout(resolve, 200)) // 200ms delay between cards
+      currentHand.value[i] = dealtCards[i]
+    }
+    
+    // Calculate optimal hold after all cards are dealt
+    optimalHold.value = getOptimalHold(dealtCards)
     phase.value = 'holding'
   }
 
@@ -136,13 +165,37 @@ export const useGameStore = defineStore('game', () => {
       const { dealtCards, remainingDeck } = dealCards(deck.value, cardsToReplace.length)
       deck.value = remainingDeck
       
-      cardsToReplace.forEach((cardIndex, replaceIndex) => {
-        if (dealtCards[replaceIndex]) {
-          currentHand.value[cardIndex] = dealtCards[replaceIndex]
-        }
+      // Start drawing animation
+      phase.value = 'drawing'
+      
+      // Replace non-held cards with placeholders immediately
+      cardsToReplace.forEach(cardIndex => {
+        currentHand.value[cardIndex] = createPlaceholderCard()
       })
+      
+      // Animate dealing the new cards
+      drawCardsAnimated(cardsToReplace, dealtCards)
+    } else {
+      // No cards to replace, go directly to result
+      handResult.value = evaluateHand(currentHand.value, bet.value)
+      
+      if (handResult.value.payout > 0) {
+        credits.value += handResult.value.payout
+        lastWinAmount.value = handResult.value.payout
+      }
+      
+      phase.value = 'result'
+    }
+  }
+
+  async function drawCardsAnimated(cardsToReplace: number[], dealtCards: Card[]) {
+    for (let i = 0; i < cardsToReplace.length; i++) {
+      await new Promise(resolve => setTimeout(resolve, 200)) // 200ms delay between cards
+      const cardIndex = cardsToReplace[i]
+      currentHand.value[cardIndex] = dealtCards[i]
     }
     
+    // Evaluate hand and finish draw
     handResult.value = evaluateHand(currentHand.value, bet.value)
     
     if (handResult.value.payout > 0) {
@@ -171,13 +224,22 @@ export const useGameStore = defineStore('game', () => {
         }
         
         const { dealtCards, remainingDeck } = dealCards(deck.value, 5)
-        currentHand.value = dealtCards
-        initialHand.value = [...dealtCards] // Store the initial hand for optimal display
         deck.value = remainingDeck
         
-        // Calculate optimal hold for the dealt hand - this is THE optimal hold for this round
-        optimalHold.value = getOptimalHold(currentHand.value)
-        phase.value = 'holding'
+        // Start dealing animation
+        phase.value = 'dealing'
+        // Set all cards to placeholder cards (card backs)
+        currentHand.value = [
+          createPlaceholderCard(),
+          createPlaceholderCard(),
+          createPlaceholderCard(),
+          createPlaceholderCard(),
+          createPlaceholderCard()
+        ]
+        initialHand.value = [...dealtCards]
+        
+        // Deal cards one by one with animation
+        dealCardsAnimated(dealtCards)
       } else {
         // Not enough credits for same bet, go to betting phase
         resetHand()

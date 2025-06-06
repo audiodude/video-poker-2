@@ -74,6 +74,7 @@ const cardClasses = computed(() => [
 
 .playing-card {
   @apply relative w-36 h-[13.1rem] bg-white rounded-xl border-2 border-gray-300 shadow-xl overflow-hidden flex flex-col;
+  transition: all 0.3s ease-in-out;
 }
 
 .card-content {

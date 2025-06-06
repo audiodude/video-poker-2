@@ -147,11 +147,27 @@
           </button>
 
           <button
+            v-else-if="gameStore.phase === 'dealing'"
+            class="deal-button disabled"
+            disabled
+          >
+            DEALING...
+          </button>
+
+          <button
             v-else-if="gameStore.phase === 'holding'"
             @click="gameStore.draw"
             class="deal-button"
           >
             DRAW
+          </button>
+
+          <button
+            v-else-if="gameStore.phase === 'drawing'"
+            class="deal-button disabled"
+            disabled
+          >
+            DRAWING...
           </button>
 
           <button
@@ -225,7 +241,7 @@ const displayHand = computed(() => {
 });
 
 const currentHandEvaluation = computed(() => {
-  if (gameStore.phase === 'holding' && gameStore.currentHand.length === 5) {
+  if (gameStore.phase === 'holding' && gameStore.currentHand.length === 5 && gameStore.currentHand.every(card => card)) {
     return evaluateHand(gameStore.currentHand, gameStore.bet);
   }
   return null;
