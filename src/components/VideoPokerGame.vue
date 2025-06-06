@@ -38,6 +38,9 @@
         <div v-else-if="gameStore.phase === 'betting'" class="game-over-text">
           GAME OVER
         </div>
+        <div v-else-if="gameStore.phase === 'holding' && currentHandEvaluation && currentHandEvaluation.payout > 0" class="hand-name">
+          {{ currentHandEvaluation.handType }}
+        </div>
         <div v-else class="invisible-placeholder">&nbsp;</div>
       </div>
     </div>
@@ -182,6 +185,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useGameStore } from '@/stores/gameStore';
+import { evaluateHand } from '@/utils/handEvaluator';
 import PlayingCard from './PlayingCard.vue';
 import PayTable from './PayTable.vue';
 import FeedbackPanel from './FeedbackPanel.vue';
@@ -218,6 +222,13 @@ const displayHand = computed(() => {
   return showOptimalCards.value && gameStore.initialHand.length > 0
     ? gameStore.initialHand
     : gameStore.currentHand;
+});
+
+const currentHandEvaluation = computed(() => {
+  if (gameStore.phase === 'holding' && gameStore.currentHand.length === 5) {
+    return evaluateHand(gameStore.currentHand, gameStore.bet);
+  }
+  return null;
 });
 
 function handleDeal() {
@@ -276,7 +287,7 @@ gameStore.initializeGame();
 }
 
 .hand-name {
-  @apply text-2xl font-bold text-yellow-300;
+  @apply text-2xl font-bold text-yellow-300 uppercase;
 }
 
 .game-over-text {
