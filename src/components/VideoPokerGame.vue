@@ -167,7 +167,7 @@
             class="deal-button disabled"
             disabled
           >
-            DEALING...
+            DEAL
           </button>
 
           <button
@@ -183,7 +183,7 @@
             class="deal-button disabled"
             disabled
           >
-            DRAWING...
+            DRAW
           </button>
 
           <button
@@ -458,7 +458,8 @@ gameStore.initializeGame();
 }
 
 .deal-button {
-  @apply bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-8 text-xl rounded;
+  @apply bg-red-600 hover:bg-red-700 text-white font-bold py-4 text-xl rounded;
+  width: 6rem;
 }
 
 .bet-button.disabled,
@@ -649,7 +650,8 @@ gameStore.initializeGame();
 
   /* Larger buttons - 20% bigger */
   .deal-button {
-    @apply py-2 px-3 text-base;
+    @apply py-2 text-base;
+    width: 4rem;
   }
 
   .bet-button {
