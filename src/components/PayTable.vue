@@ -167,28 +167,31 @@ function getBetColumnCellClass(columnBet: number) {
 }
 
 .paytable-header {
-  @apply p-2 border-b border-yellow-400;
+  @apply px-1 py-0.5 border-b border-yellow-400;
 }
 
 .collapse-button {
-  @apply w-full bg-transparent text-yellow-400 font-bold text-lg py-2 px-4 rounded hover:bg-yellow-400 hover:bg-opacity-20 transition-colors duration-200 flex items-center justify-center gap-2;
+  @apply w-full bg-transparent text-yellow-400 font-bold text-base py-0.5 px-3 rounded hover:bg-yellow-400 hover:bg-opacity-20 transition-colors duration-200 flex items-center justify-center gap-2;
 }
 
 .collapse-icon {
-  @apply text-xl font-bold;
-}
-
-.collapse-text {
   @apply text-lg font-bold;
 }
 
+.collapse-text {
+  @apply text-base font-bold;
+}
+
 th {
-  @apply font-bold;
-  font-size: 1.875rem !important; /* 30px */
+  @apply font-bold py-0 px-2;
+  font-size: 1.25rem !important; /* 20px - reduced from 30px */
+  line-height: 1.2;
 }
 
 td {
-  font-size: 1.5rem !important; /* 24px */
+  @apply py-0 px-2;
+  font-size: 1rem !important; /* 16px - reduced from 24px */
+  line-height: 1.2;
 }
 
 .bet-highlight {
