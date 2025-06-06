@@ -106,7 +106,8 @@
         <div class="left-controls">
           <div class="speed-dropdown-container">
             <button @click="toggleSpeedDropdown" class="speed-button">
-              SPEED
+              <span class="speed-text">SPEED</span>
+              <span class="speed-arrows" v-html="getSpeedArrows()"></span>
             </button>
             <div v-if="showSpeedDropdown" class="speed-dropdown">
               <div 
@@ -320,6 +321,20 @@ function selectSpeed(speed: 'slow' | 'normal' | 'fast' | 'none') {
   showSpeedDropdown.value = false;
 }
 
+function getSpeedArrows() {
+  const redArrow = '<span class="text-red-600">❯</span>'
+  const yellowArrow = '<span class="text-yellow-400">❯</span>'
+  const noSymbol = '<span class="text-red-600 text-2xl">⊘</span>'
+  
+  switch (gameStore.animationSpeed) {
+    case 'slow': return redArrow + yellowArrow + yellowArrow
+    case 'normal': return redArrow + redArrow + yellowArrow
+    case 'fast': return redArrow + redArrow + redArrow
+    case 'none': return noSymbol
+    default: return redArrow + redArrow + yellowArrow
+  }
+}
+
 gameStore.initializeGame();
 </script>
 
@@ -394,7 +409,16 @@ gameStore.initializeGame();
 }
 
 .speed-button {
-  @apply bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-6 text-base rounded;
+  @apply bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-6 text-base rounded flex items-center justify-center gap-2;
+}
+
+.speed-text {
+  @apply text-white font-bold;
+}
+
+.speed-arrows {
+  @apply text-lg flex items-center justify-center;
+  min-width: 3rem;
 }
 
 .speed-dropdown {
@@ -634,6 +658,15 @@ gameStore.initializeGame();
 
   .speed-button {
     @apply py-2 px-3 text-sm;
+  }
+
+  .speed-text {
+    @apply text-sm;
+  }
+
+  .speed-arrows {
+    @apply text-base;
+    min-width: 2.5rem;
   }
 
   .speed-dropdown {
